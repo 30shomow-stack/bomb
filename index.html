@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.0.0/aframe.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <a-sky color="gray"></a-sky>
+      
+      <a-camera position="0 0 4">
+        <a-cursor fuse="true" fuse-timeout="150"></a-cursor>
+      </a-camera>
+
+      
+      <a-sphere 
+        position="0 1 -5" 
+        color="#000000" 
+        radius="1" 
+        id="bomb" 
+        animation="property: scale; from: 1 1 1; to: 3 3 3; dur: 2000; startEvents: click;" 
+        animation__2="property: color; from: #000000; to: #FF0000; dur: 1000; startEvents: click;">
+      </a-sphere>
+
+      <a-plane position="0 -1 -3" height="25" width="25" color="white" rotation="-90 0 0"></a-plane>
+
+      <a-sphere radius="1" color="red" position="-6 0 -5" animation="property: position; from: -6 0 -5; to: 0 1 -2; dur: 3000; dir: alternate; loop: true"
+      animation__2="
+      property: opacity;
+      from: 1;
+      to: 0;
+      dur: 150;
+      startEvents: click;
+      
+      "
+      
+      
+      
+      ></a-sphere>
+      <a-sphere radius="1" color="orange" position="-4 0 -5" animation="property: position; from: -4 0 -5; to: -2 3 -9; dur: 3000; dir: alternate; loop: true" animation__2="
+      property: opacity;
+      from: 1;
+      to: 0;
+      dur: 150;
+      startEvents: click;
+      
+      "></a-sphere>
+      <a-sphere radius="1" color="yellow" position="-2 0 -5" animation="property: position; from: -2 0 -5; to: 3 1 -8; dur: 3000; dir: alternate; loop: true" animation__2="
+      property: opacity;
+      from: 1;
+      to: 0;
+      dur: 150;
+      startEvents: click;
+      
+      "></a-sphere>
+      <a-sphere radius="1" color="green" position="2 0 -5" animation="property: position; from: 2 0 -5; to: 4 3 -1; dur: 3000; dir: alternate; loop: true" animation__2="
+      property: opacity;
+      from: 1;
+      to: 0;
+      dur: 150;
+      startEvents: click;
+      
+      "></a-sphere>
+      <a-sphere radius="1" color="blue" position="4 0 -5" animation="property: position; from: 4 0 -5; to: 1 2 -2; dur: 3000; dir: alternate; loop: true" animation__2="
+      property: opacity;
+      from: 1;
+      to: 0;
+      dur: 150;
+      startEvents: click;
+      
+      "></a-sphere>
+      <a-sphere radius="1" color="purple" position="6 0 -5" animation="property: position; from: 6 0 -5; to: -6 0 -5; dur: 3000; dir: alternate; loop: true" animation__2="
+      property: opacity;
+      from: 1;
+      to: 0;
+      dur: 150;
+      startEvents: click;
+      
+      "></a-sphere>
+    </a-scene>
+
+    <script>
+      const scene = document.querySelector('a-scene');
+      const box = document.querySelector('#bomb');
+      const rand = (min, max) => min + Math.random() * (max - min);
+
+      function moveToRandom() {
+        // Fixed: Target 'animation__movement' so click animations aren't overwritten
+        box.setAttribute('animation__movement', {
+          property: 'position',
+          to: `${rand(-4, 4)} ${rand(0.5, 3)} ${rand(-8, -2)}`,
+          dur: 2000,
+          easing: 'easeInOutQuad'
+        });
+      }
+
+      // Fixed: Listen for the custom movement block signature to complete
+      box.addEventListener('animationcomplete__movement', moveToRandom);
+
+      if (scene.hasLoaded) {
+        moveToRandom();
+      } else {
+        scene.addEventListener('loaded', moveToRandom);
+      }
+    </script>
+  </body>
+</html>
