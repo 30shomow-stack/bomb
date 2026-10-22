@@ -1,106 +1,146 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
-  </head>
-  <body>
-    <a-scene>
-      <a-sky color="gray"></a-sky>
-      
-      <a-camera position="0 0 4">
-        <a-cursor fuse="true" fuse-timeout="150"></a-cursor>
-      </a-camera>
+<head>
+  <title>Simple 3D Dot Clicker</title>
+  <script src="https://aframe.io/releases/1.8.0/aframe.min.js"></script>
+</head>
 
-      
-      <a-sphere 
-        position="0 1 -5" 
-        color="#000000" 
-        radius="1" 
-        id="bomb" 
-        animation="property: scale; from: 1 1 1; to: 15 15 15; dur: 2000; startEvents: click;" 
-        animation__2="property: color; from: #000000; to: #FF0000; dur: 1000; startEvents: click;">
-      </a-sphere>
+<body>
+  <a-scene>
+    <a-sky color="#17233d"></a-sky>
 
-      <a-plane position="0 -1 -3" height="25" width="25" color="white" rotation="-90 0 0"></a-plane>
+    <!-- Camera with Cursor ring for clicking -->
+    <a-camera position="0 1.6 0">
+      <a-cursor color="#ffffff" raycaster="objects: .clickable"></a-cursor>
+    </a-camera>
 
-      <a-sphere radius="1" color="red" position="-6 0 -5" animation="property: position; from: -6 0 -5; to: 0 1 -2; dur: 3000; dir: alternate; loop: true"
-      animation__2="
-      property: opacity;
-      from: 1;
-      to: 0;
-      dur: 150;
-      startEvents: click;
-      
-      "
-      
-      
-      
-      ></a-sphere>
-      <a-sphere radius="1" color="orange" position="-4 0 -5" animation="property: position; from: -4 0 -5; to: -2 3 -9; dur: 3000; dir: alternate; loop: true" animation__2="
-      property: opacity;
-      from: 1;
-      to: 0;
-      dur: 150;
-      startEvents: click;
-      
-      "></a-sphere>
-      <a-sphere radius="1" color="yellow" position="-2 0 -5" animation="property: position; from: -2 0 -5; to: 3 1 -8; dur: 3000; dir: alternate; loop: true" animation__2="
-      property: opacity;
-      from: 1;
-      to: 0;
-      dur: 150;
-      startEvents: click;
-      
-      "></a-sphere>
-      <a-sphere radius="1" color="green" position="2 0 -5" animation="property: position; from: 2 0 -5; to: 4 3 -1; dur: 3000; dir: alternate; loop: true" animation__2="
-      property: opacity;
-      from: 1;
-      to: 0;
-      dur: 150;
-      startEvents: click;
-      
-      "></a-sphere>
-      <a-sphere radius="1" color="blue" position="4 0 -5" animation="property: position; from: 4 0 -5; to: 1 2 -2; dur: 3000; dir: alternate; loop: true" animation__2="
-      property: opacity;
-      from: 1;
-      to: 0;
-      dur: 150;
-      startEvents: click;
-      
-      "></a-sphere>
-      <a-sphere radius="1" color="purple" position="6 0 -5" animation="property: position; from: 6 0 -5; to: -6 0 -5; dur: 3000; dir: alternate; loop: true" animation__2="
-      property: opacity;
-      from: 1;
-      to: 0;
-      dur: 150;
-      startEvents: click;
-      
-      "></a-sphere>
-    </a-scene>
+    <!-- Ground Plane -->
+    <a-plane position="0 0 0" rotation="-90 0 0" width="24" height="24" color="#64748b"></a-plane>
 
-    <script>
-      const scene = document.querySelector('a-scene');
-      const box = document.querySelector('#bomb');
-      const rand = (min, max) => min + Math.random() * (max - min);
+    <!-- 3D MENU PANEL -->
+    <a-entity id="intro-group" position="0 1.8 -2.5">
+      <a-plane width="3.2" height="2.2" color="#0f172a" position="0 0 0"></a-plane>
+      
+      <a-text id="menu-title" value="3D DOT CLICKER" align="center" position="0 0.7 0.05" scale="0.8 0.8 0.8" color="#ef4444"></a-text>
+      
+      <a-text id="menu-rules" value="RULES:\n- Click dots before time runs out!\n- Get 10 points to WIN!\n- Running out of time = LOSE!" align="center" position="0 0.1 0.05" scale="0.45 0.45 0.45" color="#ffffff"></a-text>
+      
+      <!-- START / RESTART BUTTON -->
+      <a-box class="clickable" id="start-box" position="0 -0.6 0.05" width="1.4" height="0.4" depth="0.1" color="#22c55e">
+        <a-text id="start-text" value="START" align="center" position="0 0 0.06" scale="0.6 0.6 0.6" color="#ffffff"></a-text>
+      </a-box>
+    </a-entity>
 
-      function moveToRandom() {
-        // Fixed: Target 'animation__movement' so click animations aren't overwritten
-        box.setAttribute('animation__movement', {
-          property: 'position',
-          to: `${rand(-4, 4)} ${rand(0.5, 3)} ${rand(-8, -2)}`,
-          dur: 2000,
-          easing: 'easeInOutQuad'
-        });
-      }
+    <!-- HUD DISPLAY (Score & Timer) -->
+    <a-entity id="hud" position="0 2.8 -3" visible="false">
+      <a-text id="score-text" value="Score: 0 / 10" position="-1 0 0" align="center" color="#ffffff" scale="1.2 1.2 1.2"></a-text>
+      <a-text id="timer-text" value="Time: 5.0s" position="1 0 0" align="center" color="#facc15" scale="1.2 1.2 1.2"></a-text>
+    </a-entity>
 
-      // Fixed: Listen for the custom movement block signature to complete
-      box.addEventListener('animationcomplete__movement', moveToRandom);
+    <!-- THE DOT -->
+    <a-sphere class="clickable" id="dot" position="0 1.6 -3" radius="0.3" color="#ef4444" visible="false"></a-sphere>
 
-      if (scene.hasLoaded) {
-        moveToRandom();
+  </a-scene>
+
+  <script>
+    let score = 0;
+    let timeLeft = 5.0;
+    let timerInterval = null;
+    let gameActive = false;
+
+    const winScore = 10;
+    const startBox = document.getElementById('start-box');
+    const startText = document.getElementById('start-text');
+    const introGroup = document.getElementById('intro-group');
+    const menuTitle = document.getElementById('menu-title');
+    const menuRules = document.getElementById('menu-rules');
+    const dot = document.getElementById('dot');
+    const hud = document.getElementById('hud');
+    const scoreText = document.getElementById('score-text');
+    const timerText = document.getElementById('timer-text');
+
+    const colors = ['#ef4444', '#3b82f6', '#22c55e', '#facc15', '#a855f7', '#f97316'];
+
+    startBox.addEventListener('click', function () {
+      startGame();
+    });
+
+    function startGame() {
+      score = 0;
+      gameActive = true;
+      scoreText.setAttribute('value', 'Score: 0 / ' + winScore);
+      
+      // Hide menu and show game elements
+      introGroup.setAttribute('position', '0 -100 0');
+      hud.setAttribute('visible', 'true');
+      dot.setAttribute('visible', 'true');
+      
+      respawnDot();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timeLeft = 5.0;
+      timerText.setAttribute('value', 'Time: ' + timeLeft.toFixed(1) + 's');
+
+      timerInterval = setInterval(function () {
+        if (!gameActive) return;
+
+        timeLeft -= 0.1;
+        timerText.setAttribute('value', 'Time: ' + Math.max(0, timeLeft).toFixed(1) + 's');
+
+        if (timeLeft <= 0) {
+          endGame(false); // Player Lost
+        }
+      }, 100);
+    }
+
+    dot.addEventListener('click', function () {
+      if (!gameActive) return;
+
+      score++;
+      scoreText.setAttribute('value', 'Score: ' + score + ' / ' + winScore);
+
+      if (score >= winScore) {
+        endGame(true); // Player Won
       } else {
-        scene.addEventListener('loaded', moveToRandom);
+        respawnDot();
       }
-    </script>
-  </body>
+    });
+
+    function respawnDot() {
+      const randomX = (Math.random() - 0.5) * 5;
+      const randomY = Math.random() * 2.5 + 0.8;
+      const randomZ = -Math.random() * 3.5 - 1.5;
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+      dot.setAttribute('position', `${randomX} ${randomY} ${randomZ}`);
+      dot.setAttribute('color', randomColor);
+
+      startTimer();
+    }
+
+    function endGame(isWin) {
+      gameActive = false;
+      clearInterval(timerInterval);
+
+      // Hide game elements and show menu
+      dot.setAttribute('visible', 'false');
+      hud.setAttribute('visible', 'false');
+      introGroup.setAttribute('position', '0 1.8 -2.5');
+
+      if (isWin) {
+        menuTitle.setAttribute('value', 'YOU WIN!');
+        menuTitle.setAttribute('color', '#22c55e');
+        menuRules.setAttribute('value', 'Great job! You hit 10 dots in time!');
+      } else {
+        menuTitle.setAttribute('value', 'GAME OVER');
+        menuTitle.setAttribute('color', '#ef4444');
+        menuRules.setAttribute('value', 'Time ran out!\nFinal Score: ' + score + ' / ' + winScore);
+      }
+
+      startText.setAttribute('value', 'PLAY AGAIN');
+    }
+  </script>
+</body>
 </html>
